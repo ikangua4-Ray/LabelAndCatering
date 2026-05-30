@@ -276,7 +276,57 @@
   .size-opt .size-dim  { font-size:11px; color:var(--text-soft); margin-top:2px; }
 
   /* label preview */
-  .label-container { display:flex; justify-content:center; background:#f0f0f0; border-radius:16px; padding:28px 20px; }
+  .murid-card {
+    background: var(--bg);
+    border: 2px solid rgba(255,107,53,0.15);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: grid;
+    grid-template-columns: 1fr 80px auto;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 8px;
+    animation: fadeIn .3s ease;
+  }
+  .murid-card input {
+    border: 2px solid rgba(255,107,53,.18); border-radius:10px;
+    padding:10px 13px; font-family:'Quicksand',sans-serif;
+    font-size:14px; font-weight:600; color:var(--text);
+    background:white; outline:none; transition:border-color .2s; width:100%;
+  }
+  .murid-card input:focus { border-color:var(--orange); }
+
+  /* label student strip */
+  .label-student {
+    padding: 8px 16px 10px;
+    background: rgba(0,0,0,0.08);
+  }
+  .label-student-name { font-family:'Baloo 2',cursive; font-size:15px; font-weight:800; color:white; line-height:1.1; }
+  .label-student-meta { font-size:11px; color:rgba(255,255,255,.85); font-weight:600; margin-top:2px; }
+
+  /* preview card wrapper */
+  .label-preview-card {
+    background: white;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 4px 20px var(--shadow);
+    margin-bottom: 14px;
+  }
+  .label-preview-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px;
+  }
+  .label-preview-title { font-family:'Baloo 2',cursive; font-size:14px; font-weight:700; color:var(--text); }
+  .btn-print-single {
+    padding: 8px 14px;
+    background: var(--orange); color: white; border: none;
+    border-radius: 10px; font-family:'Baloo 2',cursive;
+    font-size: 13px; font-weight: 700; cursor: pointer;
+    transition: opacity .2s;
+  }
+  .btn-print-single:hover { opacity: .85; }
+
+  .label-container { display:flex; justify-content:center; background:#f0f0f0; border-radius:16px; padding:20px; }
   .label { font-family:'Nunito',sans-serif; border-radius:16px; overflow:hidden; box-shadow:0 8px 30px rgba(0,0,0,.18); }
   .label.size-small  { width:200px; }
   .label.size-medium { width:280px; }
@@ -298,16 +348,16 @@
   .label-footer-text { font-size:10px; font-weight:700; color:rgba(255,255,255,.85); }
 
   /* themes */
-  .theme-orange .label-top, .theme-orange .label-footer { background:linear-gradient(135deg,#FF6B35,#FF9A5C); }
+  .theme-orange .label-top, .theme-orange .label-footer { background:linear-gradient(135deg,#FF6B35,#FF9A5C); -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   .theme-orange .label-divider { background:#FF6B35; }
   .theme-orange .label-lauk-dot { background:#FF6B35; }
-  .theme-green  .label-top, .theme-green  .label-footer { background:linear-gradient(135deg,#06D6A0,#05B386); }
+  .theme-green  .label-top, .theme-green  .label-footer { background:linear-gradient(135deg,#06D6A0,#05B386); -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   .theme-green  .label-divider { background:#06D6A0; }
   .theme-green  .label-lauk-dot { background:#06D6A0; }
-  .theme-pink   .label-top, .theme-pink   .label-footer { background:linear-gradient(135deg,#F72585,#B5179E); }
+  .theme-pink   .label-top, .theme-pink   .label-footer { background:linear-gradient(135deg,#F72585,#B5179E); -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   .theme-pink   .label-divider { background:#F72585; }
   .theme-pink   .label-lauk-dot { background:#F72585; }
-  .theme-blue   .label-top, .theme-blue   .label-footer { background:linear-gradient(135deg,#4361EE,#3A86FF); }
+  .theme-blue   .label-top, .theme-blue   .label-footer { background:linear-gradient(135deg,#4361EE,#3A86FF); -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   .theme-blue   .label-divider { background:#4361EE; }
   .theme-blue   .label-lauk-dot { background:#4361EE; }
 
@@ -317,11 +367,63 @@
 
   /* PRINT */
   @media print {
-    body * { visibility:hidden; }
-    #receiptContent, #receiptContent *, #labelOut, #labelOut * { visibility:visible; }
-    #receiptContent { position:fixed; top:0; left:0; width:100%; padding:20px; }
-    #labelOut { position:fixed; top:10mm; left:10mm; box-shadow:none; }
-    .no-print { display:none !important; }
+    @page { margin: 6mm; size: auto; }
+
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
+
+    html, body { background: white !important; height: auto !important; overflow: visible !important; }
+
+    body > * { display: none !important; }
+    #printTarget { display: block !important; }
+    #printTarget * { visibility: visible !important; }
+    .no-print { display: none !important; }
+
+    /* ── LABEL print ── */
+    #printTarget .label {
+      width: 100% !important;
+      max-width: 100% !important;
+      border-radius: 12px !important;
+      box-shadow: none !important;
+      overflow: hidden !important;
+      page-break-after: always;
+    }
+    #printTarget .label:last-child { page-break-after: avoid; }
+    #printTarget .label-top    { padding: 16px 18px !important; }
+    #printTarget .label-logo   { width: 44px !important; height: 44px !important; }
+    #printTarget .label-brand  { font-size: 20px !important; }
+    #printTarget .label-sub    { font-size: 11px !important; }
+    #printTarget .label-date-badge { font-size: 12px !important; padding: 4px 10px !important; }
+    #printTarget .label-student { padding: 8px 18px 10px !important; }
+    #printTarget .label-student-name { font-size: 16px !important; }
+    #printTarget .label-student-meta { font-size: 12px !important; }
+    #printTarget .label-body   { padding: 16px 18px 18px !important; }
+    #printTarget .label-menu-name { font-size: 24px !important; margin-bottom: 8px !important; }
+    #printTarget .label-lauk-title { font-size: 10px !important; margin-bottom: 6px !important; }
+    #printTarget .label-lauk-text  { font-size: 15px !important; line-height: 1.6 !important; }
+    #printTarget .label-lauk-dot   { width: 7px !important; height: 7px !important; margin-top: 6px !important; }
+    #printTarget .label-lauk-item  { margin-bottom: 5px !important; }
+    #printTarget .label-footer { padding: 10px 18px !important; }
+    #printTarget .label-footer-text { font-size: 12px !important; }
+
+    /* ── RECEIPT print — bolder ── */
+    #printTarget .receipt { max-width: 100% !important; padding: 0 !important; font-size: 14px !important; overflow: hidden !important; }
+    #printTarget .r-brand  { font-size: 26px !important; }
+    #printTarget .r-tag    { font-size: 13px !important; font-weight: 700 !important; color: #333 !important; }
+    #printTarget .r-area   { font-size: 12px !important; font-weight: 700 !important; }
+    #printTarget .r-meta   { font-size: 12px !important; font-weight: 700 !important; color: #555 !important; }
+    #printTarget .r-section-lbl { font-size: 10px !important; color: #555 !important; }
+    #printTarget .r-line   { font-size: 15px !important; font-weight: 700 !important; color: #111 !important; margin: 4px 0 !important; }
+    #printTarget .r-row    { font-size: 15px !important; font-weight: 700 !important; color: #111 !important; }
+    #printTarget .r-total-lbl  { font-size: 16px !important; }
+    #printTarget .r-total-amt  { font-size: 26px !important; }
+    #printTarget .r-payment    { font-size: 14px !important; font-weight: 700 !important; color: #333 !important; }
+    #printTarget .r-status     { font-size: 15px !important; }
+    #printTarget .r-footer     { font-size: 13px !important; font-weight: 700 !important; color: #555 !important; }
+    #printTarget .r-logo       { width: 70px !important; }
   }
 
   @media (max-width:480px) {
@@ -403,7 +505,7 @@
     <!-- Receipt output -->
     <div class="output-wrapper" id="receiptWrapper">
       <div class="btn-row no-print" style="margin-bottom:14px;">
-        <button class="btn-green" onclick="window.print()">🖨️ Cetak Struk</button>
+        <button class="btn-green" onclick="printReceiptHTML()">🖨️ Cetak Struk</button>
         <button class="btn-secondary" onclick="buatBaru()">↩ Baru</button>
       </div>
       <div class="receipt-card">
@@ -459,9 +561,20 @@
         </div>
 
         <div class="form-group full">
+          <label>🏫 Nama Sekolah</label>
+          <input type="text" id="fSekolah" placeholder="Contoh: SD 1 YPK" />
+        </div>
+
+        <div class="form-group full">
           <label>🥘 Isi / Lauk Hari Ini</label>
           <div class="lauk-list" id="laukList"></div>
           <button type="button" class="add-lauk-btn" onclick="tambahLauk()">＋ Tambah Lauk</button>
+        </div>
+
+        <div class="form-group full">
+          <label>👦 Daftar Murid <span style="font-weight:500;text-transform:none;letter-spacing:0;color:#aaa;font-size:11px;">(setiap murid dapat label sendiri)</span></label>
+          <div id="muridList"></div>
+          <button type="button" class="add-lauk-btn" style="margin-top:8px;" onclick="tambahMurid()">＋ Tambah Murid</button>
         </div>
 
         <div class="form-group full">
@@ -487,22 +600,42 @@
       <button class="btn-primary" style="width:100%;margin-top:18px;padding:14px;font-family:'Baloo 2',cursive;font-size:16px;" onclick="buatLabel()">✨ Buat Label</button>
     </div>
 
-    <!-- Label output -->
+    <!-- Label preview -->
     <div class="label-output-wrapper" id="labelOutputWrapper">
       <div class="btn-row no-print" style="margin-bottom:14px;">
-        <button class="btn-green" onclick="window.print()">🖨️ Cetak Label</button>
+        <button class="btn-green" onclick="cetakSemuaLabel()">🖨️ Cetak Semua Label</button>
         <button class="btn-secondary" onclick="kembali()">↩ Edit</button>
       </div>
-      <div class="label-container">
-        <div class="label" id="labelOut"></div>
-      </div>
+      <!-- preview cards generated here -->
+      <div id="labelPreviewList"></div>
     </div>
 
   </div><!-- end panelLabel -->
 
 </div><!-- end page -->
 
+<!-- Hidden print target -->
+<div id="printTarget" style="display:none;"></div>
+<iframe id="printFrame" style="display:none; position:fixed; right:0; bottom:0; width:0; height:0; border:none;"></iframe>
+
 <script>
+  /* ── PRINT HELPERS ── */
+  function printLabelHTML(labelHTML) {
+    const target = document.getElementById('printTarget');
+    target.innerHTML = labelHTML;
+    target.style.display = 'block';
+    window.print();
+    setTimeout(() => { target.innerHTML = ''; target.style.display = 'none'; }, 1000);
+  }
+
+  function printReceiptHTML() {
+    const el = document.getElementById('receiptContent');
+    const target = document.getElementById('printTarget');
+    target.innerHTML = el.outerHTML;
+    target.style.display = 'block';
+    window.print();
+    setTimeout(() => { target.innerHTML = ''; target.style.display = 'none'; }, 1000);
+  }
   /* ── TAB SWITCHING ── */
   function switchTab(tab) {
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -561,13 +694,14 @@
   function buatBaru()  { document.getElementById('receiptWrapper').classList.remove('show'); document.getElementById('waInput').value=''; window.scrollTo({top:0,behavior:'smooth'}); }
 
   /* ══════════ LABEL JS ══════════ */
-  let activeTheme='orange', activeSize='medium', laukCount=0;
+  let activeTheme='orange', activeSize='medium', laukCount=0, muridCount=0;
 
   window.addEventListener('DOMContentLoaded',()=>{
     const today=new Date();
     const yyyy=today.getFullYear(), mm=String(today.getMonth()+1).padStart(2,'0'), dd=String(today.getDate()).padStart(2,'0');
     document.getElementById('fTanggal').value=`${yyyy}-${mm}-${dd}`;
     tambahLauk('Nasi Putih'); tambahLauk('Ayam Goreng'); tambahLauk('Sayur Tumis');
+    tambahMurid();
   });
 
   function tambahLauk(val='') {
@@ -579,6 +713,20 @@
   }
   function hapusLauk(id){const el=document.getElementById(id);if(el)el.remove();renumberLauk();}
   function renumberLauk(){document.querySelectorAll('.lauk-row').forEach((r,i)=>{const n=r.querySelector('.lauk-num');if(n)n.textContent=i+1;});}
+
+  function tambahMurid() {
+    muridCount++;
+    const list=document.getElementById('muridList');
+    const card=document.createElement('div'); card.className='murid-card'; card.id='murid-'+muridCount;
+    card.innerHTML=`
+      <input type="text" placeholder="Nama anak" id="muridNama-${muridCount}" />
+      <input type="text" placeholder="Kelas" id="muridKelas-${muridCount}" />
+      ${muridCount>1?`<button class="hapus-lauk" onclick="hapusMurid(${muridCount})">✕</button>`:'<div></div>'}
+    `;
+    list.appendChild(card);
+  }
+  function hapusMurid(id){const el=document.getElementById('murid-'+id);if(el)el.remove();}
+
   function pilihTheme(name,el){activeTheme=name;document.querySelectorAll('.theme-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');}
   function pilihSize(name,el){activeSize=name;document.querySelectorAll('.size-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');}
 
@@ -589,22 +737,18 @@
     return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
   }
 
-  function buatLabel() {
-    const tanggal=document.getElementById('fTanggal').value;
-    const namaMenu=document.getElementById('fNamaMenu').value.trim()||'Bekal Si Kecil';
-    const laukItems=[];
-    document.querySelectorAll('.lauk-row input').forEach(inp=>{const v=inp.value.trim();if(v)laukItems.push(v);});
-    if(laukItems.length===0){alert('Tambahkan minimal 1 lauk ya!');return;}
-    const tanggalStr=tanggal?formatTanggalLabel(tanggal):'-';
+  function buildLabelHTML(namaMenu, tanggalStr, sekolah, laukItems, namaAnak, kelas, theme, size) {
     let laukHTML='';
     laukItems.forEach(l=>{laukHTML+=`<div class="label-lauk-item"><div class="label-lauk-dot"></div><span class="label-lauk-text">${l}</span></div>`;});
-
-    document.getElementById('labelOut').className=`label theme-${activeTheme} size-${activeSize}`;
-    document.getElementById('labelOut').innerHTML=`
+    return `<div class="label theme-${theme} size-${size}">
       <div class="label-top">
         <img src="https://images2.imgbox.com/1c/63/LldD8cvS_o.png" alt="De Karnis" class="label-logo" />
         <div class="label-brand-wrap"><div class="label-brand">De Karnis</div><div class="label-sub">Bekal Sehat & Lezat 🌟</div></div>
         <div class="label-date-badge">${tanggalStr}</div>
+      </div>
+      <div class="label-student">
+        <div class="label-student-name">👦 ${namaAnak}</div>
+        <div class="label-student-meta">🎒 ${kelas}${sekolah ? ' &nbsp;•&nbsp; 🏫 ' + sekolah : ''}</div>
       </div>
       <div class="label-body">
         <div class="label-menu-name">${namaMenu}</div>
@@ -615,10 +759,78 @@
       <div class="label-footer">
         <span class="label-footer-text">📍 Wilayah Bontang</span>
         <span class="label-footer-text">De Karnis</span>
-      </div>`;
+      </div>
+    </div>`;
+  }
+
+  function buatLabel() {
+    const tanggal=document.getElementById('fTanggal').value;
+    const namaMenu=document.getElementById('fNamaMenu').value.trim()||'Bekal Si Kecil';
+    const sekolah=document.getElementById('fSekolah').value.trim();
+    const laukItems=[];
+    document.querySelectorAll('.lauk-row input').forEach(inp=>{const v=inp.value.trim();if(v)laukItems.push(v);});
+    if(laukItems.length===0){alert('Tambahkan minimal 1 lauk ya!');return;}
+
+    // Collect students
+    const muridCards=document.querySelectorAll('.murid-card');
+    const muridData=[];
+    for(const card of muridCards){
+      const id=card.id.replace('murid-','');
+      const nama=document.getElementById('muridNama-'+id)?.value.trim();
+      const kelas=document.getElementById('muridKelas-'+id)?.value.trim();
+      if(!nama){alert('Mohon isi nama anak di semua baris.');return;}
+      if(!kelas){alert('Mohon isi kelas anak di semua baris.');return;}
+      muridData.push({nama,kelas});
+    }
+    if(muridData.length===0){alert('Tambahkan minimal 1 murid ya!');return;}
+
+    const tanggalStr=tanggal?formatTanggalLabel(tanggal):'-';
+    const previewList=document.getElementById('labelPreviewList');
+    previewList.innerHTML='';
+
+    muridData.forEach((m,i)=>{
+      const labelHTML=buildLabelHTML(namaMenu,tanggalStr,sekolah,laukItems,m.nama,m.kelas,activeTheme,activeSize);
+      const wrapper=document.createElement('div');
+      wrapper.className='label-preview-card';
+      wrapper.innerHTML=`
+        <div class="label-preview-header">
+          <span class="label-preview-title">👦 ${m.nama} — ${m.kelas}</span>
+          <button class="btn-print-single" onclick="cetakSatuLabel(${i})">🖨️ Cetak</button>
+        </div>
+        <div class="label-container" id="labelWrap-${i}">${labelHTML}</div>
+      `;
+      previewList.appendChild(wrapper);
+    });
+
+    // Store data for print
+    window._labelData={namaMenu,tanggalStr,sekolah,laukItems,muridData,theme:activeTheme,size:activeSize};
 
     document.getElementById('labelOutputWrapper').classList.add('show');
     document.getElementById('labelOutputWrapper').scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  function cetakSatuLabel(idx) {
+    const d=window._labelData;
+    const m=d.muridData[idx];
+    const html=buildLabelHTML(d.namaMenu,d.tanggalStr,d.sekolah,d.laukItems,m.nama,m.kelas,d.theme,d.size);
+    printLabelHTML(html);
+  }
+
+  function cetakSemuaLabel() {
+    const d=window._labelData;
+    let allHTML='';
+    d.muridData.forEach(m=>{
+      allHTML+=`<div style="page-break-after:always;">${buildLabelHTML(d.namaMenu,d.tanggalStr,d.sekolah,d.laukItems,m.nama,m.kelas,d.theme,d.size)}</div>`;
+    });
+    printLabelHTML(allHTML);
+  }
+
+  function printLabelHTML(labelHTML) {
+    const target = document.getElementById('printTarget');
+    target.innerHTML = labelHTML;
+    target.style.display = 'block';
+    window.print();
+    setTimeout(() => { target.innerHTML = ''; target.style.display = 'none'; }, 1500);
   }
 
   function kembali(){document.getElementById('labelOutputWrapper').classList.remove('show');window.scrollTo({top:0,behavior:'smooth'});}
