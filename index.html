@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>De Karnis — Tools</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Quicksand:wght@400;500;600;700&family=Nunito:wght@700;800;900&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange: #FF6B35;
+    --orange-light: #FF9A5C;
+    --green: #06D6A0;
+    --green-dark: #05B386;
+    --yellow: #FFD166;
+    --bg: #FFF8F0;
+    --white: #FFFFFF;
+    --text: #2D1B0E;
+    --text-soft: #7A5C44;
+    --shadow: rgba(255,107,53,0.15);
+  }
+
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 600;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* BLOBS */
+  .blob-bg { position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
+  .blob { position:absolute; border-radius:50%; filter:blur(85px); opacity:.14; }
+  .blob-1 { width:450px; height:450px; background:var(--orange); top:-100px; left:-100px; }
+  .blob-2 { width:350px; height:350px; background:var(--yellow); bottom:0; right:-60px; }
+  .blob-3 { width:280px; height:280px; background:var(--green); top:50%; left:60%; }
+
+  /* PAGE WRAPPER */
+  .page { position:relative; z-index:1; max-width:700px; margin:0 auto; padding:0 16px 100px; }
+
+  /* HEADER */
+  .site-header {
+    text-align:center;
+    padding: 44px 20px 28px;
+    position: relative;
+    z-index: 10;
+  }
+  .site-header img { width:80px; filter:drop-shadow(0 4px 14px rgba(255,107,53,.25)); margin-bottom:10px; }
+  .site-header h1 { font-family:'Nunito',sans-serif; font-size:clamp(38px,10vw,72px); font-weight:900; line-height:1; white-space:nowrap; }
+  .site-header h1 span { color:var(--orange); }
+  .site-header p { font-size:14px; color:var(--text-soft); margin-top:6px; }
+
+  /* TAB NAV */
+  .tab-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 0 0 28px;
+    background: white;
+    border-radius: 18px;
+    padding: 8px;
+    box-shadow: 0 4px 20px var(--shadow);
+    position: sticky;
+    top: 12px;
+    z-index: 50;
+  }
+
+  .tab-btn {
+    padding: 14px 12px;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Baloo 2', cursive;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    color: var(--text-soft);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+  }
+
+  .tab-btn.active {
+    background: var(--orange);
+    color: white;
+    box-shadow: 0 4px 16px rgba(255,107,53,.35);
+    transform: translateY(-1px);
+  }
+
+  .tab-btn:not(.active):hover {
+    background: rgba(255,107,53,.08);
+    color: var(--orange);
+  }
+
+  /* TAB PANELS */
+  .tab-panel { display:none; animation: fadeUp 0.4s ease both; }
+  .tab-panel.active { display:block; }
+
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(16px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  @keyframes fadeDown {
+    from { opacity:0; transform:translateY(-14px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  /* ─────────── SHARED CARD ─────────── */
+  .card {
+    background: white;
+    border-radius: 20px;
+    padding: 26px 24px;
+    box-shadow: 0 4px 24px var(--shadow);
+    margin-bottom: 18px;
+  }
+
+  .card h2 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ─────────── KONVERTER STYLES ─────────── */
+  .input-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  textarea.wa-input {
+    width: 100%;
+    min-height: 200px;
+    border: 2px solid rgba(255,107,53,0.2);
+    border-radius: 14px;
+    padding: 16px;
+    font-family: 'Courier Prime', monospace;
+    font-size: 13px;
+    color: var(--text);
+    background: var(--bg);
+    outline: none;
+    resize: vertical;
+    transition: border-color 0.2s;
+    line-height: 1.6;
+  }
+  textarea.wa-input:focus { border-color: var(--orange); background: white; }
+  textarea.wa-input::placeholder { color:#bbb; font-style:italic; }
+
+  .btn-row { display:flex; gap:12px; margin-top:14px; }
+
+  .btn-primary {
+    flex:1; padding:13px;
+    background: var(--orange); color:white; border:none;
+    border-radius:12px; font-family:'Baloo 2',cursive;
+    font-size:15px; font-weight:700; cursor:pointer;
+    transition:all .2s; box-shadow:0 4px 14px rgba(255,107,53,.32);
+  }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 22px rgba(255,107,53,.4); }
+
+  .btn-secondary {
+    padding:13px 16px; background:white; color:var(--text-soft);
+    border:2px solid #ddd; border-radius:12px;
+    font-family:'Baloo 2',cursive; font-size:15px; font-weight:700;
+    cursor:pointer; transition:border-color .2s;
+  }
+  .btn-secondary:hover { border-color:#aaa; }
+
+  .btn-green {
+    flex:1; padding:13px;
+    background:linear-gradient(135deg,var(--green),var(--green-dark));
+    color:white; border:none; border-radius:12px;
+    font-family:'Baloo 2',cursive; font-size:15px; font-weight:700;
+    cursor:pointer; box-shadow:0 4px 14px rgba(6,214,160,.32);
+    transition:all .2s; display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .btn-green:hover { transform:translateY(-2px); box-shadow:0 8px 22px rgba(6,214,160,.4); }
+
+  .error-box {
+    background:#fff0f0; border:2px solid #ffcdd2; border-radius:12px;
+    padding:12px 16px; font-size:14px; color:#c62828; font-weight:600;
+    margin-top:10px; display:none; animation:fadeUp .3s ease;
+  }
+
+  /* how-to steps */
+  .how-to h3 { font-family:'Baloo 2',cursive; font-size:16px; font-weight:700; color:var(--text); margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+  .steps { display:flex; flex-direction:column; gap:10px; }
+  .step { display:flex; align-items:flex-start; gap:12px; }
+  .step-num { background:var(--orange); color:white; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Baloo 2',cursive; font-weight:700; font-size:13px; flex-shrink:0; margin-top:1px; }
+  .step p { font-size:14px; font-weight:600; color:var(--text-soft); line-height:1.5; }
+  .step p strong { color:var(--text); }
+
+  /* receipt */
+  .output-wrapper { display:none; }
+  .output-wrapper.show { display:block; animation:fadeUp .5s ease both; }
+
+  .receipt-card { background:white; border-radius:20px; overflow:hidden; box-shadow:0 4px 28px var(--shadow); }
+  .receipt {
+    padding:28px 24px 20px;
+    font-family:'Courier Prime',monospace;
+    font-size:13px; color:#1a1a1a;
+    max-width:380px; margin:0 auto;
+  }
+  .r-hdr { text-align:center; margin-bottom:14px; }
+  .r-logo { width:60px; height:auto; margin-bottom:7px; }
+  .r-brand { font-family:'Baloo 2',cursive; font-size:22px; font-weight:800; color:var(--orange); }
+  .r-tag  { font-size:11px; color:#666; margin:2px 0; }
+  .r-area { font-size:10px; color:#999; margin:2px 0 8px; }
+  .r-meta { font-size:10px; color:#999; margin:3px 0; }
+  .r-dash { border:none; border-top:1.5px dashed #ccc; margin:10px 0; }
+  .r-solid{ border:none; border-top:2px solid #1a1a1a; margin:10px 0; }
+  .r-section-lbl { font-size:9px; font-weight:700; letter-spacing:2px; color:#999; margin-bottom:5px; }
+  .r-line { margin:2px 0; font-size:13px; line-height:1.5; }
+  .r-row  { display:flex; justify-content:space-between; margin:3px 0; font-size:13px; }
+  .r-total-row { display:flex; justify-content:space-between; align-items:center; margin:8px 0; }
+  .r-total-lbl { font-size:14px; font-weight:700; letter-spacing:2px; }
+  .r-total-amt { font-family:'Baloo 2',cursive; font-size:22px; font-weight:800; color:var(--orange); }
+  .r-payment { text-align:center; font-size:12px; color:#555; margin:6px 0; }
+  .r-status  { font-weight:700; color:var(--green-dark); font-size:13px; margin-top:4px; }
+  .r-footer  { text-align:center; font-size:11px; color:#999; margin-top:10px; padding-top:10px; border-top:1px dashed #ccc; line-height:1.8; }
+
+  /* ─────────── LABEL STYLES ─────────── */
+  .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .form-group { display:flex; flex-direction:column; gap:6px; }
+  .form-group.full { grid-column:1/-1; }
+  .form-group label { font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-soft); }
+  .form-group input, .form-group textarea, .form-group select {
+    border:2px solid rgba(255,107,53,.18); border-radius:12px;
+    padding:11px 14px; font-family:'Quicksand',sans-serif;
+    font-size:14px; font-weight:600; color:var(--text);
+    background:var(--bg); outline:none;
+    transition:all .2s ease; width:100%; resize:none; appearance:none;
+  }
+  .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+    border-color:var(--orange); background:white; box-shadow:0 0 0 3px rgba(255,107,53,.1);
+  }
+
+  .lauk-list { display:flex; flex-direction:column; gap:8px; margin-top:4px; }
+  .lauk-row { display:flex; align-items:center; gap:8px; animation:fadeIn .3s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateX(-8px);} to{opacity:1;transform:none;} }
+  .lauk-num { background:var(--orange); color:white; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Baloo 2',cursive; font-size:13px; font-weight:700; flex-shrink:0; }
+  .lauk-row input { flex:1; border:2px solid rgba(255,107,53,.18); border-radius:10px; padding:10px 13px; font-family:'Quicksand',sans-serif; font-size:14px; font-weight:600; color:var(--text); background:var(--bg); outline:none; transition:border-color .2s; }
+  .lauk-row input:focus { border-color:var(--orange); background:white; }
+  .hapus-lauk { background:#fff0f0; border:1.5px solid #ffcdd2; border-radius:8px; width:30px; height:30px; display:flex; align-items:center; justify-content:center; font-size:14px; cursor:pointer; color:#e53935; transition:background .15s; flex-shrink:0; }
+  .hapus-lauk:hover { background:#ffcdd2; }
+  .add-lauk-btn { width:100%; margin-top:8px; padding:11px; background:white; border:2px dashed var(--orange); border-radius:12px; font-family:'Baloo 2',cursive; font-size:14px; font-weight:700; color:var(--orange); cursor:pointer; transition:background .2s ease; }
+  .add-lauk-btn:hover { background:rgba(255,107,53,.05); }
+
+  .theme-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:4px; }
+  .theme-opt { border:2.5px solid transparent; border-radius:12px; padding:10px 6px; text-align:center; cursor:pointer; font-size:11px; font-weight:700; transition:all .2s; color:white; font-family:'Baloo 2',cursive; }
+  .theme-opt:hover { transform:scale(1.05); }
+  .theme-opt.active { border-color:var(--text); box-shadow:0 0 0 2px white,0 0 0 4px var(--text); }
+  .t-orange { background:linear-gradient(135deg,#FF6B35,#FF9A5C); }
+  .t-green  { background:linear-gradient(135deg,#06D6A0,#05B386); }
+  .t-pink   { background:linear-gradient(135deg,#F72585,#B5179E); }
+  .t-blue   { background:linear-gradient(135deg,#4361EE,#3A86FF); }
+
+  .size-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:4px; }
+  .size-opt { border:2px solid rgba(255,107,53,.2); border-radius:12px; padding:10px; text-align:center; cursor:pointer; transition:all .2s; background:var(--bg); }
+  .size-opt:hover { border-color:var(--orange); }
+  .size-opt.active { border-color:var(--orange); background:rgba(255,107,53,.08); }
+  .size-opt .size-name { font-family:'Baloo 2',cursive; font-size:13px; font-weight:700; color:var(--text); }
+  .size-opt .size-dim  { font-size:11px; color:var(--text-soft); margin-top:2px; }
+
+  /* label preview */
+  .murid-card {
+    background: var(--bg);
+    border: 2px solid rgba(255,107,53,0.15);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: grid;
+    grid-template-columns: 1fr 80px auto;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 8px;
+    animation: fadeIn .3s ease;
+  }
+  .murid-card input {
+    border: 2px solid rgba(255,107,53,.18); border-radius:10px;
+    padding:10px 13px; font-family:'Quicksand',sans-serif;
+    font-size:14px; font-weight:600; color:var(--text);
+    background:white; outline:none; transition:border-color .2s; width:100%;
+  }
+  .murid-card input:focus { border-color:var(--orange); }
+
+  /* label student strip */
+  .label-student { padding: 8px 16px 10px; }
+  .theme-orange .label-student { background: linear-gradient(135deg,#e85a22,#f07d3e); }
+  .theme-green  .label-student { background: linear-gradient(135deg,#05b386,#06c498); }
+  .theme-pink   .label-student { background: linear-gradient(135deg,#c01070,#e0148a); }
+  .theme-blue   .label-student { background: linear-gradient(135deg,#3251d0,#2f72e8); }
+  .label-student-name { font-family:'Baloo 2',cursive; font-size:15px; font-weight:800; color:white; line-height:1.1; }
+  .label-student-meta { font-size:11px; color:rgba(255,255,255,.9); font-weight:600; margin-top:2px; }
+
+  /* preview card wrapper */
+  .label-preview-card {
+    background: white;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 4px 20px var(--shadow);
+    margin-bottom: 14px;
+  }
+  .label-preview-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px;
+  }
+  .label-preview-title { font-family:'Baloo 2',cursive; font-size:14px; font-weight:700; color:var(--text); }
+  .btn-print-single {
+    padding: 8px 14px;
+    background: var(--orange); color: white; border: none;
+    border-radius: 10px; font-family:'Baloo 2',cursive;
+    font-size: 13px; font-weight: 700; cursor: pointer;
+    transition: opacity .2s;
+  }
+  .btn-print-single:hover { opacity: .85; }
+
+  .label-container { display:flex; justify-content:center; background:#f0f0f0; border-radius:16px; padding:20px; }
+  .label { font-family:'Nunito',sans-serif; border-radius:16px; overflow:hidden; box-shadow:0 8px 30px rgba(0,0,0,.18); }
+  .label.size-small  { width:200px; }
+  .label.size-medium { width:280px; }
+  .label.size-large  { width:360px; }
+  .label-top { padding:14px 16px 10px; display:flex; align-items:center; gap:10px; }
+  .label-logo { width:36px; height:36px; object-fit:contain; flex-shrink:0; }
+  .label-brand-wrap { flex:1; }
+  .label-brand { font-size:15px; font-weight:800; color:white; line-height:1; font-family:'Baloo 2',cursive; }
+  .label-sub   { font-size:9px; color:rgba(255,255,255,.8); font-weight:600; letter-spacing:.5px; }
+  .label-date-badge { background:rgba(255,255,255,.25); border-radius:6px; padding:3px 8px; font-size:10px; font-weight:700; color:white; white-space:nowrap; }
+  .label-body { background:white; padding:12px 16px 14px; }
+  .label-menu-name { font-family:'Baloo 2',cursive; font-size:17px; font-weight:800; color:var(--text); margin-bottom:6px; line-height:1.2; }
+  .label-divider { height:2px; border-radius:2px; margin-bottom:8px; opacity:.3; }
+  .label-lauk-title { font-size:9px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#aaa; margin-bottom:5px; }
+  .label-lauk-item { display:flex; align-items:flex-start; gap:6px; margin-bottom:3px; }
+  .label-lauk-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; margin-top:5px; }
+  .label-lauk-text { font-size:12px; font-weight:600; color:#444; line-height:1.4; }
+  .label-footer { padding:7px 16px; display:flex; align-items:center; justify-content:space-between; }
+  .label-footer-text { font-size:10px; font-weight:700; color:rgba(255,255,255,.85); }
+
+  /* themes */
+  .theme-orange .label-top, .theme-orange .label-footer { background:linear-gradient(135deg,#FF6B35,#FF9A5C); -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .theme-orange .label-divider { background:#FF6B35; }
+  .theme-orange .label-lauk-dot { background:#FF6B35; }
+  .theme-green  .label-top, .theme-green  .label-footer { background:linear-gradient(135deg,#06D6A0,#05B386); -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .theme-green  .label-divider { background:#06D6A0; }
+  .theme-green  .label-lauk-dot { background:#06D6A0; }
+  .theme-pink   .label-top, .theme-pink   .label-footer { background:linear-gradient(135deg,#F72585,#B5179E); -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .theme-pink   .label-divider { background:#F72585; }
+  .theme-pink   .label-lauk-dot { background:#F72585; }
+  .theme-blue   .label-top, .theme-blue   .label-footer { background:linear-gradient(135deg,#4361EE,#3A86FF); -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .theme-blue   .label-divider { background:#4361EE; }
+  .theme-blue   .label-lauk-dot { background:#4361EE; }
+
+  /* label output wrapper */
+  .label-output-wrapper { display:none; }
+  .label-output-wrapper.show { display:block; animation:fadeUp .5s ease both; }
+
+  /* PRINT */
+  @media print {
+    @page { margin: 6mm; size: auto; }
+
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
+
+    html, body { background: white !important; height: auto !important; overflow: visible !important; }
+
+    body > * { display: none !important; }
+    #printTarget { display: block !important; }
+    #printTarget * { visibility: visible !important; }
+    .no-print { display: none !important; }
+
+    /* ── LABEL print ── */
+    #printTarget .label {
+      width: 100% !important;
+      max-width: 100% !important;
+      border-radius: 12px !important;
+      box-shadow: none !important;
+      overflow: hidden !important;
+      page-break-after: always;
+    }
+    #printTarget .label:last-child { page-break-after: avoid; }
+    #printTarget .label-top    { padding: 16px 18px !important; }
+    #printTarget .label-logo   { width: 44px !important; height: 44px !important; }
+    #printTarget .label-brand  { font-size: 20px !important; }
+    #printTarget .label-sub    { font-size: 11px !important; }
+    #printTarget .label-date-badge { font-size: 12px !important; padding: 4px 10px !important; }
+    #printTarget .label-student { padding: 8px 18px 10px !important; }
+    #printTarget .theme-orange .label-student { background: linear-gradient(135deg,#e85a22,#f07d3e) !important; }
+    #printTarget .theme-green  .label-student { background: linear-gradient(135deg,#05b386,#06c498) !important; }
+    #printTarget .theme-pink   .label-student { background: linear-gradient(135deg,#c01070,#e0148a) !important; }
+    #printTarget .theme-blue   .label-student { background: linear-gradient(135deg,#3251d0,#2f72e8) !important; }
+    #printTarget .label-student-name { font-size: 16px !important; }
+    #printTarget .label-student-meta { font-size: 12px !important; }
+    #printTarget .label-body   { padding: 16px 18px 18px !important; }
+    #printTarget .label-menu-name { font-size: 24px !important; margin-bottom: 8px !important; }
+    #printTarget .label-lauk-title { font-size: 10px !important; margin-bottom: 6px !important; }
+    #printTarget .label-lauk-text  { font-size: 15px !important; line-height: 1.6 !important; }
+    #printTarget .label-lauk-dot   { width: 7px !important; height: 7px !important; margin-top: 6px !important; }
+    #printTarget .label-lauk-item  { margin-bottom: 5px !important; }
+    #printTarget .label-footer { padding: 10px 18px !important; }
+    #printTarget .label-footer-text { font-size: 12px !important; }
+
+    /* ── RECEIPT print — bolder ── */
+    #printTarget .receipt { max-width: 100% !important; padding: 0 !important; font-size: 14px !important; overflow: hidden !important; }
+    #printTarget .r-brand  { font-size: 26px !important; }
+    #printTarget .r-tag    { font-size: 13px !important; font-weight: 700 !important; color: #333 !important; }
+    #printTarget .r-area   { font-size: 12px !important; font-weight: 700 !important; }
+    #printTarget .r-meta   { font-size: 12px !important; font-weight: 700 !important; color: #555 !important; }
+    #printTarget .r-section-lbl { font-size: 10px !important; color: #555 !important; }
+    #printTarget .r-line   { font-size: 15px !important; font-weight: 700 !important; color: #111 !important; margin: 4px 0 !important; }
+    #printTarget .r-row    { font-size: 15px !important; font-weight: 700 !important; color: #111 !important; }
+    #printTarget .r-total-lbl  { font-size: 16px !important; }
+    #printTarget .r-total-amt  { font-size: 26px !important; }
+    #printTarget .r-payment    { font-size: 14px !important; font-weight: 700 !important; color: #333 !important; }
+    #printTarget .r-status     { font-size: 15px !important; }
+    #printTarget .r-footer     { font-size: 13px !important; font-weight: 700 !important; color: #555 !important; }
+    #printTarget .r-logo       { width: 70px !important; }
+  }
+
+  @media (max-width:480px) {
+    .theme-grid { grid-template-columns:repeat(2,1fr); }
+    .form-grid  { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="blob-bg">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="site-header">
+    <img src="https://images2.imgbox.com/1c/63/LldD8cvS_o.png" alt="De Karnis" />
+    <h1>De <span>Karnis</span></h1>
+    <p>🛠️ Tools Dapur De Karnis</p>
+  </div>
+
+  <!-- TAB NAV -->
+  <div class="tab-nav no-print">
+    <button class="tab-btn active" id="tabBtnKonverter" onclick="switchTab('konverter')">
+      🧾 Konverter Struk
+    </button>
+    <button class="tab-btn" id="tabBtnLabel" onclick="switchTab('label')">
+      🏷️ Buat Label Bekal
+    </button>
+  </div>
+
+  <!-- ═══════════ TAB: KONVERTER ═══════════ -->
+  <div class="tab-panel active" id="panelKonverter">
+
+    <div class="card">
+      <h2>📖 Cara Pakai</h2>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><p>Buka WhatsApp, <strong>tekan lama</strong> pesan pesanan yang masuk</p></div>
+        <div class="step"><div class="step-num">2</div><p><strong>Copy</strong> teks pesan tersebut</p></div>
+        <div class="step"><div class="step-num">3</div><p><strong>Paste</strong> di kotak di bawah lalu klik <strong>Buat Struk</strong></p></div>
+        <div class="step"><div class="step-num">4</div><p>Struk muncul otomatis — klik <strong>🖨️ Cetak</strong>!</p></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="input-label">📋 Paste Pesan WhatsApp Di Sini</p>
+      <textarea class="wa-input" id="waInput" placeholder="Contoh:
+🍱 PESANAN BARU — De Karnis
+
+👤 Nama Pemesan: Ray
+📞 No. WhatsApp: 087888726168
+
+🛒 Detail Pesanan:
+• Bekal Si Kecil × 1 porsi
+• Harga satuan: Rp 27.000
+• Jumlah hari: 1 hari
+• Tanggal: Jumat, 29 Mei 2026
+
+🏫 Sekolah: SD 1 YPK
+
+👦 Daftar Anak:
+1. Ray — Kelas 7F
+
+💰 Total: Rp 27.000
+💳 Pembayaran: Transfer"></textarea>
+
+      <div class="error-box" id="errorBox">⚠️ Pesan tidak dikenali. Pastikan paste pesan pesanan De Karnis yang lengkap.</div>
+
+      <div class="btn-row">
+        <button class="btn-primary" onclick="konversi()">✨ Buat Struk</button>
+        <button class="btn-secondary" onclick="bersihkan()">🗑️ Hapus</button>
+      </div>
+    </div>
+
+    <!-- Receipt output -->
+    <div class="output-wrapper" id="receiptWrapper">
+      <div class="btn-row no-print" style="margin-bottom:14px;">
+        <button class="btn-green" onclick="printReceiptHTML()">🖨️ Cetak Struk</button>
+        <button class="btn-secondary" onclick="buatBaru()">↩ Baru</button>
+      </div>
+      <div class="receipt-card">
+        <div class="receipt" id="receiptContent">
+          <div class="r-hdr">
+            <img src="https://images2.imgbox.com/1c/63/LldD8cvS_o.png" alt="De Karnis" class="r-logo" />
+            <h2 class="r-brand">De Karnis</h2>
+            <p class="r-tag">Bekal Sehat & Lezat untuk Si Kecil</p>
+            <p class="r-area">📍 Wilayah Bontang</p>
+            <hr class="r-dash">
+            <p class="r-meta" id="rNo"></p>
+            <p class="r-meta" id="rDatePrinted"></p>
+          </div>
+          <hr class="r-dash">
+          <div><p class="r-section-lbl">PEMESAN</p><p class="r-line" id="rName"></p><p class="r-line" id="rPhone"></p></div>
+          <hr class="r-dash">
+          <div id="rDeliverySection"></div>
+          <hr class="r-dash">
+          <div>
+            <p class="r-section-lbl">DETAIL PESANAN</p>
+            <div class="r-row"><span id="rItemDesc"></span><span id="rItemPrice"></span></div>
+            <p class="r-line" id="rDurasi"></p>
+            <p class="r-line" id="rTanggal"></p>
+            <p class="r-line" id="rCatatan" style="font-style:italic;color:#666;font-size:12px;display:none;"></p>
+          </div>
+          <hr class="r-solid">
+          <div class="r-total-row"><span class="r-total-lbl">TOTAL</span><span class="r-total-amt" id="rTotal"></span></div>
+          <hr class="r-dash">
+          <div class="r-payment"><p>💳 Pembayaran: <strong>Transfer</strong></p><p class="r-status">✅ Pesanan Diterima</p></div>
+          <div class="r-footer"><p>Terima kasih sudah memesan! 🌟</p><p>WA: +62 811-5811-544</p><p>Created by Rayhan</p></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end panelKonverter -->
+
+
+  <!-- ═══════════ TAB: LABEL ═══════════ -->
+  <div class="tab-panel" id="panelLabel">
+
+    <div class="card">
+      <h2>📋 Isi Info Bekal Hari Ini</h2>
+      <div class="form-grid">
+
+        <div class="form-group full">
+          <label>📅 Tanggal</label>
+          <input type="date" id="fTanggal" />
+        </div>
+
+        <div class="form-group full">
+          <label>🍱 Nama Menu</label>
+          <input type="text" id="fNamaMenu" placeholder="Contoh: Bekal Si Kecil Spesial" value="Bekal Si Kecil" />
+        </div>
+
+        <div class="form-group full">
+          <label>🏫 Nama Sekolah</label>
+          <input type="text" id="fSekolah" placeholder="Contoh: SD 1 YPK" />
+        </div>
+
+        <div class="form-group full">
+          <label>🥘 Isi / Lauk Hari Ini</label>
+          <div class="lauk-list" id="laukList"></div>
+          <button type="button" class="add-lauk-btn" onclick="tambahLauk()">＋ Tambah Lauk</button>
+        </div>
+
+        <div class="form-group full">
+          <label>👦 Daftar Murid <span style="font-weight:500;text-transform:none;letter-spacing:0;color:#aaa;font-size:11px;">(setiap murid dapat label sendiri)</span></label>
+          <div id="muridList"></div>
+          <button type="button" class="add-lauk-btn" style="margin-top:8px;" onclick="tambahMurid()">＋ Tambah Murid</button>
+        </div>
+
+        <div class="form-group full">
+          <label>🎨 Tema Warna</label>
+          <div class="theme-grid">
+            <div class="theme-opt t-orange active" onclick="pilihTheme('orange',this)">🍊 Orange</div>
+            <div class="theme-opt t-green"          onclick="pilihTheme('green',this)">🌿 Hijau</div>
+            <div class="theme-opt t-pink"           onclick="pilihTheme('pink',this)">🌸 Pink</div>
+            <div class="theme-opt t-blue"           onclick="pilihTheme('blue',this)">💙 Biru</div>
+          </div>
+        </div>
+
+        <div class="form-group full">
+          <label>📐 Ukuran Label</label>
+          <div class="size-grid">
+            <div class="size-opt"        onclick="pilihSize('small',this)"><div class="size-name">Kecil</div><div class="size-dim">5×4 cm</div></div>
+            <div class="size-opt active" onclick="pilihSize('medium',this)"><div class="size-name">Sedang</div><div class="size-dim">7×5 cm</div></div>
+            <div class="size-opt"        onclick="pilihSize('large',this)"><div class="size-name">Besar</div><div class="size-dim">9×6 cm</div></div>
+          </div>
+        </div>
+
+      </div>
+      <button class="btn-primary" style="width:100%;margin-top:18px;padding:14px;font-family:'Baloo 2',cursive;font-size:16px;" onclick="buatLabel()">✨ Buat Label</button>
+    </div>
+
+    <!-- Label preview -->
+    <div class="label-output-wrapper" id="labelOutputWrapper">
+      <div class="btn-row no-print" style="margin-bottom:14px;">
+        <button class="btn-green" onclick="cetakSemuaLabel()">🖨️ Cetak Semua Label</button>
+        <button class="btn-secondary" onclick="kembali()">↩ Edit</button>
+      </div>
+      <!-- preview cards generated here -->
+      <div id="labelPreviewList"></div>
+    </div>
+
+  </div><!-- end panelLabel -->
+
+</div><!-- end page -->
+
+<!-- Hidden print target -->
+<div id="printTarget" style="display:none;"></div>
+<iframe id="printFrame" style="display:none; position:fixed; right:0; bottom:0; width:0; height:0; border:none;"></iframe>
+
+<script>
+  /* ── PRINT HELPERS ── */
+  function printLabelHTML(labelHTML) {
+    const target = document.getElementById('printTarget');
+    target.innerHTML = labelHTML;
+    target.style.display = 'block';
+    window.print();
+    setTimeout(() => { target.innerHTML = ''; target.style.display = 'none'; }, 1000);
+  }
+
+  function printReceiptHTML() {
+    const el = document.getElementById('receiptContent');
+    const target = document.getElementById('printTarget');
+    target.innerHTML = el.outerHTML;
+    target.style.display = 'block';
+    window.print();
+    setTimeout(() => { target.innerHTML = ''; target.style.display = 'none'; }, 1000);
+  }
+  /* ── TAB SWITCHING ── */
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+    document.getElementById('tabBtn' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* ══════════ KONVERTER JS ══════════ */
+  function konversi() {
+    const raw = document.getElementById('waInput').value.trim();
+    const errBox = document.getElementById('errorBox');
+    errBox.style.display = 'none';
+    if (!raw) { errBox.style.display='block'; errBox.textContent='⚠️ Kotak teks masih kosong. Paste pesan dulu ya!'; return; }
+    if (!raw.includes('De Karnis') && !raw.includes('Bekal Si Kecil')) { errBox.style.display='block'; errBox.textContent='⚠️ Pesan tidak dikenali. Pastikan paste pesan pesanan De Karnis yang lengkap.'; return; }
+
+    const getVal = (key) => { const m=raw.match(new RegExp(key+'[:\\s]+(.+)','i')); return m?m[1].replace(/\*/g,'').trim():'-'; };
+
+    const nama=getVal('Nama Pemesan'), phone=getVal('No\\. WhatsApp'), total=getVal('Total');
+    const pembayaran=getVal('Pembayaran'), tanggal=getVal('Tanggal'), jumlahHari=getVal('Jumlah hari');
+    const porsiMatch=raw.match(/Bekal Si Kecil\s*[×x]\s*(\d+)\s*porsi/i), porsi=porsiMatch?porsiMatch[1]:'1';
+    const hargaMatch=raw.match(/Harga satuan[:\s]+(.+)/i), hargaSatuan=hargaMatch?hargaMatch[1].replace(/\*/g,'').trim():'Rp 27.000';
+    const sekolahMatch=raw.match(/Sekolah[:\s]+(.+)/i), sekolah=sekolahMatch?sekolahMatch[1].replace(/\*/g,'').trim():null;
+    const alamatMatch=raw.match(/Pengiriman ke Alamat[:\s]+(.+)/i), alamat=alamatMatch?alamatMatch[1].replace(/\*/g,'').trim():null;
+    const anakLines=[];
+    const anakSection=raw.match(/Daftar Anak[:\s]*([\s\S]*?)(?=\n💰|\n💳|\nTerima|$)/i);
+    if(anakSection){anakSection[1].trim().split('\n').forEach(l=>{const t=l.trim();if(t.match(/^\d+\./))anakLines.push(t);});}
+    const catatanMatch=raw.match(/Catatan[:\s]+(.+)/i), catatan=catatanMatch?catatanMatch[1].replace(/\*/g,'').trim():null;
+
+    const rNo='DK-'+Date.now().toString().slice(-6);
+    const now=new Date(), printed=now.toLocaleString('id-ID',{dateStyle:'long',timeStyle:'short'});
+
+    let dHTML=`<p class="r-section-lbl">PENGIRIMAN</p>`;
+    if(sekolah){dHTML+=`<p class="r-line">🏫 ${sekolah}</p>`;anakLines.forEach(a=>{dHTML+=`<p class="r-line">&nbsp;&nbsp;${a}</p>`;});}
+    else if(alamat){dHTML+=`<p class="r-line">🏠 ${alamat}</p>`;}
+
+    document.getElementById('rNo').textContent=`No. Struk: ${rNo}`;
+    document.getElementById('rDatePrinted').textContent=printed;
+    document.getElementById('rName').textContent=`👤 ${nama}`;
+    document.getElementById('rPhone').textContent=`📞 ${phone}`;
+    document.getElementById('rDeliverySection').innerHTML=dHTML;
+    document.getElementById('rItemDesc').textContent=`Bekal Si Kecil × ${porsi} porsi`;
+    document.getElementById('rItemPrice').textContent=hargaSatuan;
+    document.getElementById('rDurasi').textContent=`Durasi: ${jumlahHari}`;
+    document.getElementById('rTanggal').textContent=`Tanggal: ${tanggal}`;
+    const cEl=document.getElementById('rCatatan');
+    if(catatan){cEl.style.display='block';cEl.textContent=`📝 ${catatan}`;}else{cEl.style.display='none';}
+    document.getElementById('rTotal').textContent=total;
+
+    document.getElementById('receiptWrapper').classList.add('show');
+    document.getElementById('receiptWrapper').scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  function bersihkan() { document.getElementById('waInput').value=''; document.getElementById('errorBox').style.display='none'; document.getElementById('receiptWrapper').classList.remove('show'); }
+  function buatBaru()  { document.getElementById('receiptWrapper').classList.remove('show'); document.getElementById('waInput').value=''; window.scrollTo({top:0,behavior:'smooth'}); }
+
+  /* ══════════ LABEL JS ══════════ */
+  let activeTheme='orange', activeSize='medium', laukCount=0, muridCount=0;
+
+  window.addEventListener('DOMContentLoaded',()=>{
+    const today=new Date();
+    const yyyy=today.getFullYear(), mm=String(today.getMonth()+1).padStart(2,'0'), dd=String(today.getDate()).padStart(2,'0');
+    document.getElementById('fTanggal').value=`${yyyy}-${mm}-${dd}`;
+    tambahLauk('Nasi Putih'); tambahLauk('Ayam Goreng'); tambahLauk('Sayur Tumis');
+    tambahMurid();
+  });
+
+  function tambahLauk(val='') {
+    laukCount++;
+    const list=document.getElementById('laukList');
+    const row=document.createElement('div'); row.className='lauk-row'; row.id='lauk-'+laukCount;
+    row.innerHTML=`<div class="lauk-num">${list.children.length+1}</div><input type="text" placeholder="Contoh: Ayam goreng crispy" value="${val}" />${laukCount>1?`<button class="hapus-lauk" onclick="hapusLauk('lauk-${laukCount}')">✕</button>`:'<div style="width:30px"></div>'}`;
+    list.appendChild(row); renumberLauk();
+  }
+  function hapusLauk(id){const el=document.getElementById(id);if(el)el.remove();renumberLauk();}
+  function renumberLauk(){document.querySelectorAll('.lauk-row').forEach((r,i)=>{const n=r.querySelector('.lauk-num');if(n)n.textContent=i+1;});}
+
+  function tambahMurid() {
+    muridCount++;
+    const list=document.getElementById('muridList');
+    const card=document.createElement('div'); card.className='murid-card'; card.id='murid-'+muridCount;
+    card.innerHTML=`
+      <input type="text" placeholder="Nama anak" id="muridNama-${muridCount}" />
+      <input type="text" placeholder="Kelas" id="muridKelas-${muridCount}" />
+      ${muridCount>1?`<button class="hapus-lauk" onclick="hapusMurid(${muridCount})">✕</button>`:'<div></div>'}
+    `;
+    list.appendChild(card);
+  }
+  function hapusMurid(id){const el=document.getElementById('murid-'+id);if(el)el.remove();}
+
+  function pilihTheme(name,el){activeTheme=name;document.querySelectorAll('.theme-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');}
+  function pilihSize(name,el){activeSize=name;document.querySelectorAll('.size-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');}
+
+  function formatTanggalLabel(str){
+    const days=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+    const months=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    const d=new Date(str+'T00:00:00');
+    return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  }
+
+  function buildLabelHTML(namaMenu, tanggalStr, sekolah, laukItems, namaAnak, kelas, theme, size) {
+    let laukHTML='';
+    laukItems.forEach(l=>{laukHTML+=`<div class="label-lauk-item"><div class="label-lauk-dot"></div><span class="label-lauk-text">${l}</span></div>`;});
+    return `<div class="label theme-${theme} size-${size}">
+      <div class="label-top">
+        <img src="https://images2.imgbox.com/1c/63/LldD8cvS_o.png" alt="De Karnis" class="label-logo" />
+        <div class="label-brand-wrap"><div class="label-brand">De Karnis</div><div class="label-sub">Bekal Sehat & Lezat 🌟</div></div>
+        <div class="label-date-badge">${tanggalStr}</div>
+      </div>
+      <div class="label-student">
+        <div class="label-student-name">👦 ${namaAnak}</div>
+        <div class="label-student-meta">🎒 ${kelas}${sekolah ? ' &nbsp;•&nbsp; 🏫 ' + sekolah : ''}</div>
+      </div>
+      <div class="label-body">
+        <div class="label-menu-name">${namaMenu}</div>
+        <div class="label-divider"></div>
+        <div class="label-lauk-title">Isi Hari Ini</div>
+        ${laukHTML}
+      </div>
+      <div class="label-footer">
+        <span class="label-footer-text">📍 Wilayah Bontang</span>
+        <span class="label-footer-text">De Karnis</span>
+      </div>
+    </div>`;
+  }
+
+  function buatLabel() {
+    const tanggal=document.getElementById('fTanggal').value;
+    const namaMenu=document.getElementById('fNamaMenu').value.trim()||'Bekal Si Kecil';
+    const sekolah=document.getElementById('fSekolah').value.trim();
+    const laukItems=[];
+    document.querySelectorAll('.lauk-row input').forEach(inp=>{const v=inp.value.trim();if(v)laukItems.push(v);});
+    if(laukItems.length===0){alert('Tambahkan minimal 1 lauk ya!');return;}
+
+    // Collect students
+    const muridCards=document.querySelectorAll('.murid-card');
+    const muridData=[];
+    for(const card of muridCards){
+      const id=card.id.replace('murid-','');
+      const nama=document.getElementById('muridNama-'+id)?.value.trim();
+      const kelas=document.getElementById('muridKelas-'+id)?.value.trim();
+      if(!nama){alert('Mohon isi nama anak di semua baris.');return;}
+      if(!kelas){alert('Mohon isi kelas anak di semua baris.');return;}
+      muridData.push({nama,kelas});
+    }
+    if(muridData.length===0){alert('Tambahkan minimal 1 murid ya!');return;}
+
+    const tanggalStr=tanggal?formatTanggalLabel(tanggal):'-';
+    const previewList=document.getElementById('labelPreviewList');
+    previewList.innerHTML='';
+
+    muridData.forEach((m,i)=>{
+      const labelHTML=buildLabelHTML(namaMenu,tanggalStr,sekolah,laukItems,m.nama,m.kelas,activeTheme,activeSize);
+      const wrapper=document.createElement('div');
+      wrapper.className='label-preview-card';
+      wrapper.innerHTML=`
+        <div class="label-preview-header">
+          <span class="label-preview-title">👦 ${m.nama} — ${m.kelas}</span>
+          <button class="btn-print-single" onclick="cetakSatuLabel(${i})">🖨️ Cetak</button>
+        </div>
+        <div class="label-container" id="labelWrap-${i}">${labelHTML}</div>
+      `;
+      previewList.appendChild(wrapper);
+    });
+
+    // Store data for print
+    window._labelData={namaMenu,tanggalStr,sekolah,laukItems,muridData,theme:activeTheme,size:activeSize};
+
+    document.getElementById('labelOutputWrapper').classList.add('show');
+    document.getElementById('labelOutputWrapper').scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  function cetakSatuLabel(idx) {
+    const d=window._labelData;
+    const m=d.muridData[idx];
+    const html=buildLabelHTML(d.namaMenu,d.tanggalStr,d.sekolah,d.laukItems,m.nama,m.kelas,d.theme,d.size);
+    printLabelHTML(html);
+  }
+
+  function cetakSemuaLabel() {
+    const d=window._labelData;
+    let allHTML='';
+    d.muridData.forEach(m=>{
+      allHTML+=`<div style="page-break-after:always;">${buildLabelHTML(d.namaMenu,d.tanggalStr,d.sekolah,d.laukItems,m.nama,m.kelas,d.theme,d.size)}</div>`;
+    });
+    printLabelHTML(allHTML);
+  }
+
+  function printLabelHTML(labelHTML) {
+    const target = document.getElementById('printTarget');
+    target.innerHTML = labelHTML;
+    target.style.display = 'block';
+    window.print();
+    setTimeout(() => { target.innerHTML = ''; target.style.display = 'none'; }, 1500);
+  }
+
+  function kembali(){document.getElementById('labelOutputWrapper').classList.remove('show');window.scrollTo({top:0,behavior:'smooth'});}
+</script>
+</body>
+</html>
